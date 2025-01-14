@@ -107,12 +107,6 @@ const HomeScreen = () => {
           numColumns={2}
         />
       )}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate('EditNote')}
-      >
-        <Icon name="add" size={24} color="#FFFFFF" />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -168,25 +162,6 @@ const styles = StyleSheet.create({
   noteDate: {
     fontSize: 12,
     color: '#666666',
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 120,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#000000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
   },
   emptyContainer: {
     flex: 1,

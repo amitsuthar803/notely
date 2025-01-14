@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -71,6 +71,13 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
           const isFocused = state.index === index;
 
           const onPress = () => {
+            if (route.name === 'AddNote') {
+              navigation.navigate('Notes', {
+                screen: 'EditNote'
+              });
+              return;
+            }
+
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,
@@ -84,11 +91,13 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
           let iconName = 'home';
           if (route.name === 'Notes') {
             iconName = 'description';
-          } else if (route.name === 'Favorites') {
-            iconName = 'favorite';
+          } else if (route.name === 'AddNote') {
+            iconName = 'add';
           } else if (route.name === 'Settings') {
             iconName = 'settings';
           }
+
+          const isAddButton = route.name === 'AddNote';
 
           return (
             <TouchableOpacity
@@ -96,13 +105,14 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
               onPress={onPress}
               style={[
                 styles.tabButton,
-                isFocused && styles.tabButtonActive
+                isAddButton && styles.addButton,
+                isFocused && !isAddButton && styles.tabButtonActive
               ]}
             >
               <Icon
                 name={iconName}
-                size={24}
-                color={isFocused ? themeColors.tabBarActive : themeColors.tabBarInactive}
+                size={isAddButton ? 32 : 24}
+                color={isAddButton ? '#FFFFFF' : (isFocused ? themeColors.tabBarActive : themeColors.tabBarInactive)}
               />
             </TouchableOpacity>
           );
@@ -126,8 +136,9 @@ const AppContent = () => {
           component={NotesStack}
         />
         <Tab.Screen 
-          name="Favorites" 
-          component={FavoritesScreen}
+          name="AddNote" 
+          component={NotesStack}
+          options={{ tabBarLabel: '' }}
         />
         <Tab.Screen 
           name="Settings" 
@@ -157,8 +168,8 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     flexDirection: 'row',
     borderRadius: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 24,
     width: width - 48,
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -172,11 +183,27 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   tabButton: {
-    padding: 10,
+    padding: 12,
     borderRadius: 20,
   },
   tabButtonActive: {
     backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  addButton: {
+    backgroundColor: '#007AFF',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    transform: [{ translateY: -24 }],
+    shadowColor: '#007AFF',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   comingSoon: {
     flex: 1,

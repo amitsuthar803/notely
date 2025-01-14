@@ -11,7 +11,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
     loadTheme();
@@ -65,12 +65,12 @@ export const colors = {
     tabBarActive: '#FFFFFF',
   },
   dark: {
-    background: '#1A1A1A',
+    background: '#121212',
     text: '#FFFFFF',
-    secondaryText: '#CCCCCC',
-    card: '#2C2C2C',
+    secondaryText: '#AAAAAA',
+    card: '#1E1E1E',
     accent: '#007AFF',
-    tabBar: '#000000',
+    tabBar: '#1A1A1A',
     tabBarInactive: 'rgba(255,255,255,0.5)',
     tabBarActive: '#FFFFFF',
   },
