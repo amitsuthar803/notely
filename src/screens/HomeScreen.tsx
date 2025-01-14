@@ -1,139 +1,205 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
-  TextInput,
-  ListRenderItem,
+  FlatList,
+  SafeAreaView,
+  Dimensions,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MaterialIcons } from '@expo/vector-icons';
-import { Note, RootStackParamList } from '../types';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
+import { useTheme, colors } from '../context/ThemeContext';
 
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
-};
+const COLORS = [
+  '#FFE0B2',
+  '#B2DFDB',
+  '#FFCDD2',
+  '#C5CAE9',
+  '#F8BBD0',
+  '#D7CCC8',
+];
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [notes, setNotes] = useState<Note[]>([
-    { id: '1', title: 'Meeting Notes', content: 'Discuss project timeline', date: '2024-01-14', color: '#FFE0B2' },
-    { id: '2', title: 'Shopping List', content: 'Buy groceries', date: '2024-01-14', color: '#B2DFDB' },
-  ]);
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  color?: string;
+}
 
-  const renderNoteCard: ListRenderItem<Note> = ({ item }) => (
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - 60) / 2;
+
+const HomeScreen = () => {
+  const [notes, setNotes] = React.useState<Note[]>([]);
+  const navigation = useNavigation();
+  const { theme } = useTheme();
+  const themeColors = colors[theme];
+
+  React.useEffect(() => {
+    loadNotes();
+  }, []);
+
+  const loadNotes = async () => {
+    try {
+      const savedNotes = await AsyncStorage.getItem('notes');
+      if (savedNotes) {
+        setNotes(JSON.parse(savedNotes));
+      }
+    } catch (error) {
+      console.error('Error loading notes:', error);
+    }
+  };
+
+  const getRandomColor = () => {
+    return COLORS[Math.floor(Math.random() * COLORS.length)];
+  };
+
+  const renderItem = ({ item, index }: { item: Note; index: number }) => (
     <TouchableOpacity
-      style={[styles.noteCard, { backgroundColor: item.color }]}
+      style={[
+        styles.noteItem,
+        { backgroundColor: item.color || getRandomColor() },
+        index % 2 === 0 ? { marginRight: 10 } : { marginLeft: 10 }
+      ]}
       onPress={() => navigation.navigate('EditNote', { note: item })}
     >
-      <Text style={styles.noteTitle} numberOfLines={1}>{item.title}</Text>
-      <Text style={styles.noteContent} numberOfLines={3}>{item.content}</Text>
-      <Text style={styles.noteDate}>{item.date}</Text>
+      <View style={styles.noteContent}>
+        <Text style={styles.noteTitle} numberOfLines={2}>
+          {item.title}
+        </Text>
+        <Text style={styles.notePreview} numberOfLines={4}>
+          {item.content}
+        </Text>
+        <Text style={styles.noteDate}>
+          {format(new Date(item.date), 'MMM dd, yyyy')}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Notes</Text>
-        <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={24} color="#666" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search notes..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
+        <Text style={[styles.title, { color: themeColors.text }]}>Notes</Text>
       </View>
-      <FlatList
-        data={notes}
-        renderItem={renderNoteCard}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.notesList}
-      />
+      {notes.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Icon name="note" size={48} color={themeColors.secondaryText} />
+          <Text style={[styles.emptyText, { color: themeColors.secondaryText }]}>
+            No notes yet
+          </Text>
+          <Text style={[styles.emptySubtext, { color: themeColors.secondaryText }]}>
+            Tap the + button to create a note
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={notes}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          numColumns={2}
+        />
+      )}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('EditNote')}
       >
-        <MaterialIcons name="add" size={30} color="#FFF" />
+        <Icon name="add" size={24} color="#FFFFFF" />
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
   },
   header: {
-    padding: 16,
-    backgroundColor: '#FFF',
+    padding: 20,
+    paddingTop: 60,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 16,
   },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0F0F0',
-    borderRadius: 12,
-    paddingHorizontal: 12,
+  listContent: {
+    padding: 20,
+    paddingBottom: 100,
   },
-  searchIcon: {
-    marginRight: 8,
+  noteItem: {
+    width: CARD_WIDTH,
+    borderRadius: 20,
+    marginBottom: 20,
+    minHeight: 180,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
-  searchInput: {
-    flex: 1,
-    height: 48,
-    fontSize: 16,
-  },
-  notesList: {
-    padding: 8,
-  },
-  noteCard: {
-    flex: 1,
-    margin: 8,
+  noteContent: {
     padding: 16,
-    borderRadius: 16,
-    minHeight: 150,
+    flex: 1,
+    justifyContent: 'space-between',
   },
   noteTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#000000',
     marginBottom: 8,
   },
-  noteContent: {
+  notePreview: {
     fontSize: 14,
-    color: '#666',
+    color: '#333333',
+    marginBottom: 8,
     flex: 1,
   },
   noteDate: {
     fontSize: 12,
-    color: '#888',
-    marginTop: 8,
+    color: '#666666',
   },
   fab: {
     position: 'absolute',
-    right: 24,
-    bottom: 24,
+    right: 20,
+    bottom: 120,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#007AFF',
-    alignItems: 'center',
+    backgroundColor: '#000000',
     justifyContent: 'center',
+    alignItems: 'center',
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.25,
     shadowRadius: 4,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 18,
+    marginTop: 12,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    marginTop: 8,
   },
 });
 

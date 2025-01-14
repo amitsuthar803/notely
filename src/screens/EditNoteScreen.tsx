@@ -5,92 +5,113 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { format } from 'date-fns';
-import { Note, RootStackParamList } from '../types';
+import { useTheme, colors } from '../context/ThemeContext';
 
-type EditNoteScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'EditNote'>;
-  route: RouteProp<RootStackParamList, 'EditNote'>;
-};
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  color?: string;
+}
 
-const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ route, navigation }) => {
+const EditNoteScreen = ({ route, navigation }: any) => {
   const note = route.params?.note;
-  const [title, setTitle] = useState<string>(note?.title || '');
-  const [content, setContent] = useState<string>(note?.content || '');
-  const [color] = useState<string>(note?.color || '#FFE0B2');
+  const [title, setTitle] = useState(note?.title || '');
+  const [content, setContent] = useState(note?.content || '');
+  const { theme } = useTheme();
+  const themeColors = colors[theme];
 
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={handleSave} style={styles.headerButton}>
-          <Icon name="check" size={24} color="#007AFF" />
+        <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
+          <Icon name="check" size={24} color={themeColors.accent} />
         </TouchableOpacity>
       ),
     });
   }, [title, content]);
 
-  const handleSave = () => {
-    if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a title for your note');
+  const handleSave = async () => {
+    if (!title.trim() && !content.trim()) {
+      Alert.alert('Error', 'Note cannot be empty');
       return;
     }
 
-    const updatedNote: Note = {
-      id: note?.id || Date.now().toString(),
-      title,
-      content,
-      color,
-      date: format(new Date(), 'yyyy-MM-dd'),
-    };
+    try {
+      const savedNotes = await AsyncStorage.getItem('notes');
+      let notes: Note[] = savedNotes ? JSON.parse(savedNotes) : [];
 
-    // TODO: Implement save functionality
-    navigation.goBack();
+      const newNote = {
+        id: note?.id || Date.now().toString(),
+        title: title.trim(),
+        content: content.trim(),
+        date: new Date().toISOString(),
+        color: note?.color,
+      };
+
+      if (note) {
+        notes = notes.map((n) => (n.id === note.id ? newNote : n));
+      } else {
+        notes.unshift(newNote);
+      }
+
+      await AsyncStorage.setItem('notes', JSON.stringify(notes));
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error saving note:', error);
+      Alert.alert('Error', 'Failed to save note');
+    }
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: color }]}>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: themeColors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <TextInput
-        style={styles.titleInput}
+        style={[styles.titleInput, { color: themeColors.text }]}
         placeholder="Title"
+        placeholderTextColor={themeColors.secondaryText}
         value={title}
         onChangeText={setTitle}
-        placeholderTextColor="#666"
+        maxLength={100}
       />
       <TextInput
-        style={styles.contentInput}
+        style={[styles.contentInput, { color: themeColors.text }]}
         placeholder="Start typing..."
+        placeholderTextColor={themeColors.secondaryText}
         value={content}
         onChangeText={setContent}
         multiline
-        placeholderTextColor="#666"
+        textAlignVertical="top"
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-  },
-  headerButton: {
-    marginRight: 16,
+    padding: 20,
   },
   titleInput: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#000',
+    fontWeight: '600',
+    marginBottom: 20,
   },
   contentInput: {
     flex: 1,
     fontSize: 16,
-    color: '#000',
-    textAlignVertical: 'top',
+    lineHeight: 24,
+  },
+  saveButton: {
+    marginRight: 8,
   },
 });
 
