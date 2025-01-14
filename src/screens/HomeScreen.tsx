@@ -55,21 +55,51 @@ const HomeScreen = ({navigation}) => {
     },
   ]);
 
-  const renderNoteCard = ({item}) => (
-    <TouchableOpacity
-      style={[styles.noteCard, {backgroundColor: item.color}]}
-      onPress={() => navigation.navigate('EditNote', {note: item})}>
-      <Text style={[styles.noteTitle, {color: themeColors.text}]} numberOfLines={1}>
-        {item.title}
-      </Text>
-      <Text style={[styles.noteContent, {color: themeColors.textSecondary}]} numberOfLines={3}>
-        {item.content}
-      </Text>
-      <Text style={[styles.noteDate, {color: themeColors.textTertiary}]}>
-        {item.date}
-      </Text>
-    </TouchableOpacity>
-  );
+  const renderNoteCard = ({item}) => {
+    // Calculate if the note color is light or dark
+    const isLightColor = (color) => {
+      // Convert hex to RGB
+      const hex = color.replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      
+      // Calculate relative luminance
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      return luminance > 0.5;
+    };
+
+    // Determine text colors based on note background
+    const noteTextColor = isLightColor(item.color) ? '#000000' : '#FFFFFF';
+    const noteSecondaryTextColor = isLightColor(item.color) 
+      ? 'rgba(0, 0, 0, 0.7)' 
+      : 'rgba(255, 255, 255, 0.7)';
+    const noteTertiaryTextColor = isLightColor(item.color)
+      ? 'rgba(0, 0, 0, 0.5)'
+      : 'rgba(255, 255, 255, 0.5)';
+
+    return (
+      <TouchableOpacity
+        style={[styles.noteCard, {backgroundColor: item.color}]}
+        onPress={() => navigation.navigate('EditNote', {note: item})}
+        activeOpacity={0.7}>
+        <Text 
+          style={[styles.noteTitle, {color: noteTextColor}]} 
+          numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text 
+          style={[styles.noteContent, {color: noteSecondaryTextColor}]} 
+          numberOfLines={3}>
+          {item.content}
+        </Text>
+        <Text 
+          style={[styles.noteDate, {color: noteTertiaryTextColor}]}>
+          {item.date}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={[styles.container, {backgroundColor: themeColors.background}]}>
