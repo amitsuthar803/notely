@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {createContext, useContext, useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Theme = 'light' | 'dark';
@@ -10,7 +10,9 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({
+  children,
+}) => {
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{theme, toggleTheme}}>
       {children}
     </ThemeContext.Provider>
   );
@@ -59,7 +61,7 @@ export const colors = {
     text: '#000000',
     secondaryText: '#666666',
     card: '#F8F8F8',
-    accent: '#007AFF',
+    accent: 'red',
     tabBar: '#1A1A1A',
     tabBarInactive: 'rgba(255,255,255,0.5)',
     tabBarActive: '#FFFFFF',
