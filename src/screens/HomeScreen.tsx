@@ -9,7 +9,7 @@ import {
   ListRenderItem,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Note, RootStackParamList } from '../types';
 
 type HomeScreenProps = {
@@ -39,7 +39,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.title}>Notes</Text>
         <View style={styles.searchContainer}>
-          <Icon name="search" size={24} color="#666" style={styles.searchIcon} />
+          <MaterialIcons name="search" size={24} color="#666" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search notes..."
@@ -59,7 +59,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         style={styles.fab}
         onPress={() => navigation.navigate('EditNote')}
       >
-        <Icon name="add" size={30} color="#FFF" />
+        <MaterialIcons name="add" size={30} color="#FFF" />
       </TouchableOpacity>
     </View>
   );
