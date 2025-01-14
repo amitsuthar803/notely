@@ -61,7 +61,7 @@ export const colors = {
     text: '#000000',
     secondaryText: '#666666',
     card: '#F8F8F8',
-    accent: 'red',
+    accent: '#007AFF',
     tabBar: '#1A1A1A',
     tabBarInactive: 'rgba(255,255,255,0.5)',
     tabBarActive: '#FFFFFF',

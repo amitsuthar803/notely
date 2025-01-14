@@ -8,8 +8,35 @@ import {
   TextInput,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {useTheme} from '../context/ThemeContext';
+
+const colors = {
+  light: {
+    background: '#F8F9FA',
+    surface: '#FFFFFF',
+    text: '#000000',
+    textSecondary: '#666666',
+    textTertiary: '#888888',
+    searchBackground: '#F0F0F0',
+    accent: '#007AFF',
+    noteColors: ['#FFE0B2', '#B2DFDB', '#C5CAE9', '#F8BBD0', '#DCEDC8', '#D1C4E9'],
+  },
+  dark: {
+    background: '#121212',
+    surface: '#1E1E1E',
+    text: '#FFFFFF',
+    textSecondary: '#BBBBBB',
+    textTertiary: '#888888',
+    searchBackground: '#2A2A2A',
+    accent: '#007AFF',
+    noteColors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFB6B9', '#9B89B3'],
+  },
+};
 
 const HomeScreen = ({navigation}) => {
+  const {theme} = useTheme();
+  const themeColors = colors[theme];
+
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState([
     {
@@ -17,14 +44,14 @@ const HomeScreen = ({navigation}) => {
       title: 'Meeting Notes',
       content: 'Discuss project timeline',
       date: '2024-01-14',
-      color: '#FFE0B2',
+      color: themeColors.noteColors[0],
     },
     {
       id: '2',
       title: 'Shopping List',
       content: 'Buy groceries',
       date: '2024-01-14',
-      color: '#B2DFDB',
+      color: themeColors.noteColors[1],
     },
   ]);
 
@@ -32,30 +59,33 @@ const HomeScreen = ({navigation}) => {
     <TouchableOpacity
       style={[styles.noteCard, {backgroundColor: item.color}]}
       onPress={() => navigation.navigate('EditNote', {note: item})}>
-      <Text style={styles.noteTitle} numberOfLines={1}>
+      <Text style={[styles.noteTitle, {color: themeColors.text}]} numberOfLines={1}>
         {item.title}
       </Text>
-      <Text style={styles.noteContent} numberOfLines={3}>
+      <Text style={[styles.noteContent, {color: themeColors.textSecondary}]} numberOfLines={3}>
         {item.content}
       </Text>
-      <Text style={styles.noteDate}>{item.date}</Text>
+      <Text style={[styles.noteDate, {color: themeColors.textTertiary}]}>
+        {item.date}
+      </Text>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Notes</Text>
-        <View style={styles.searchContainer}>
+    <View style={[styles.container, {backgroundColor: themeColors.background}]}>
+      <View style={[styles.header, {backgroundColor: themeColors.surface}]}>
+        <Text style={[styles.title, {color: themeColors.text}]}>Notes</Text>
+        <View style={[styles.searchContainer, {backgroundColor: themeColors.searchBackground}]}>
           <Icon
             name="search"
             size={24}
-            color="#666"
+            color={themeColors.textTertiary}
             style={styles.searchIcon}
           />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, {color: themeColors.text}]}
             placeholder="Search notes..."
+            placeholderTextColor={themeColors.textTertiary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -69,7 +99,7 @@ const HomeScreen = ({navigation}) => {
         contentContainerStyle={styles.notesList}
       />
       <TouchableOpacity
-        style={styles.fab}
+        style={[styles.fab, {backgroundColor: themeColors.accent}]}
         onPress={() => navigation.navigate('EditNote')}>
         <Icon name="add" size={30} color="#FFF" />
       </TouchableOpacity>
@@ -80,11 +110,9 @@ const HomeScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
   },
   header: {
     padding: 16,
-    backgroundColor: '#FFF',
   },
   title: {
     fontSize: 32,
@@ -94,7 +122,6 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F0F0',
     borderRadius: 12,
     paddingHorizontal: 12,
   },
@@ -115,6 +142,11 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     minHeight: 150,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   noteTitle: {
     fontSize: 18,
@@ -123,12 +155,10 @@ const styles = StyleSheet.create({
   },
   noteContent: {
     fontSize: 14,
-    color: '#666',
     flex: 1,
   },
   noteDate: {
     fontSize: 12,
-    color: '#888',
     marginTop: 8,
   },
   fab: {
@@ -138,7 +168,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#007AFF',
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
