@@ -1,36 +1,36 @@
 export const colors = {
   light: {
-    background: '#F8F9FA',
+    background: '#FFFFFF',
     surface: '#FFFFFF',
-    text: '#000000',
+    text: '#1A1A1A',
     textSecondary: '#666666',
-    textTertiary: '#888888',
-    searchBackground: '#F0F0F0',
-    accent: '#007AFF',
+    textTertiary: '#999999',
+    searchBackground: '#F5F5F5',
+    accent: '#FF6B6B',  // Punchy coral red
     noteColors: [
-      '#FFD7BA',  // Soft Peach
-      '#BAE6E0',  // Soft Mint
-      '#C7CEEA',  // Soft Lavender
-      '#FFCAD4',  // Soft Pink
-      '#E2F0CB',  // Soft Lime
-      '#F0E6EF',  // Soft Purple
+      '#FFE0E0',  // Soft Red
+      '#FFE8D6',  // Soft Orange
+      '#FFF4D5',  // Soft Yellow
+      '#E2F4D1',  // Soft Green
+      '#D4E5F9',  // Soft Blue
+      '#F2E4FF',  // Soft Purple
     ],
   },
   dark: {
-    background: '#121212',
-    surface: '#1E1E1E',
+    background: '#1A1A1A',
+    surface: '#242424',
     text: '#FFFFFF',
     textSecondary: '#BBBBBB',
     textTertiary: '#888888',
     searchBackground: '#2A2A2A',
-    accent: '#007AFF',
+    accent: '#FF6B6B',  // Same punchy coral red
     noteColors: [
-      '#FF9A76',  // Coral
-      '#4ECDC4',  // Turquoise
-      '#95B8D1',  // Steel Blue
-      '#FF8FAB',  // Rose
-      '#B8E0D2',  // Mint
-      '#D4B2D8',  // Lilac
+      '#FF8585',  // Punchy Red
+      '#FFB26B',  // Punchy Orange
+      '#FFD93D',  // Punchy Yellow
+      '#95E06C',  // Punchy Green
+      '#6BBAFF',  // Punchy Blue
+      '#B388FF',  // Punchy Purple
     ],
   },
 };

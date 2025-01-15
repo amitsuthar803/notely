@@ -10,6 +10,7 @@ import {
   ScrollView,
   Animated,
   Modal,
+  Text,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -28,7 +29,7 @@ const EditNoteScreen = ({ route, navigation }: any) => {
   const note = route.params?.note;
   const [title, setTitle] = useState(note?.title || '');
   const [content, setContent] = useState(note?.content || '');
-  const [selectedColor, setSelectedColor] = useState(note?.color || colors.light.noteColors[0]);
+  const [selectedColor, setSelectedColor] = useState(route.params?.color || note?.color || colors.light.noteColors[0]);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const { theme } = useTheme();
   const themeColors = colors[theme];
@@ -104,7 +105,8 @@ const EditNoteScreen = ({ route, navigation }: any) => {
         activeOpacity={1}
         onPress={() => setShowColorPicker(false)}
       >
-        <View style={styles.colorPickerModal}>
+        <View style={[styles.colorPickerModal, { backgroundColor: themeColors.surface }]}>
+          <Text style={[styles.colorPickerTitle, { color: themeColors.text }]}>Note Color</Text>
           <View style={styles.colorGrid}>
             {themeColors.noteColors.map((color, index) => (
               <TouchableOpacity
@@ -201,61 +203,55 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 2,
-    elevation: 3,
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   saveButton: {
     padding: 8,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   colorPickerModal: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
     width: '80%',
-    maxWidth: 400,
+    padding: 20,
+    borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowRadius: 3.84,
     elevation: 5,
+  },
+  colorPickerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 16,
+    textAlign: 'center',
   },
   colorGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 16,
+    gap: 12,
   },
   colorOption: {
     width: 48,
     height: 48,
     borderRadius: 24,
+    margin: 4,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 3,
   },
   selectedColor: {
     borderWidth: 2,
-    borderColor: '#fff',
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    borderColor: '#000',
   },
 });
 

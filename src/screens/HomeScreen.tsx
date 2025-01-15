@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,9 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
+  Image,
+  Modal,
+  StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useTheme} from '../context/ThemeContext';
@@ -15,9 +18,11 @@ import {colors} from '../theme/colors';
 const HomeScreen = ({navigation}) => {
   const {theme} = useTheme();
   const themeColors = colors[theme];
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Load notes when screen focuses
   useEffect(() => {
@@ -33,72 +38,151 @@ const HomeScreen = ({navigation}) => {
     };
 
     const unsubscribe = navigation.addListener('focus', loadNotes);
-    loadNotes(); // Load notes initially
+    loadNotes();
 
     return unsubscribe;
   }, [navigation]);
 
-  const renderNoteCard = ({item}) => {
-    // Calculate if the note color is light or dark
-    const isLightColor = (color) => {
-      if (!color) {
-        return true; // Default to light theme if no color
-      }
-      // Convert hex to RGB
-      const hex = color.replace('#', '');
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-      
-      // Calculate relative luminance
-      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      return luminance > 0.5;
-    };
+  // Filter and sort notes based on search query
+  const filteredNotes = useMemo(() => {
+    if (!searchQuery.trim()) return notes;
 
-    // Determine text colors based on note background
-    const noteTextColor = isLightColor(item.color) ? '#000000' : '#FFFFFF';
-    const noteSecondaryTextColor = isLightColor(item.color) 
-      ? 'rgba(0, 0, 0, 0.7)' 
-      : 'rgba(255, 255, 255, 0.7)';
-    const noteTertiaryTextColor = isLightColor(item.color)
-      ? 'rgba(0, 0, 0, 0.5)'
-      : 'rgba(255, 255, 255, 0.5)';
+    const query = searchQuery.toLowerCase().trim();
+    return notes
+      .map(note => {
+        const titleMatch = note.title.toLowerCase().includes(query);
+        const contentMatch = note.content.toLowerCase().includes(query);
+        const matchScore = 
+          (titleMatch ? 2 : 0) + 
+          (contentMatch ? 1 : 0);
+        return { ...note, matchScore };
+      })
+      .filter(note => note.matchScore > 0)
+      .sort((a, b) => b.matchScore - a.matchScore);
+  }, [notes, searchQuery]);
+
+  // Highlight matching text
+  const highlightText = (text, query) => {
+    if (!query.trim() || !text) return text;
+
+    const parts = text.split(new RegExp(`(${query})`, 'gi'));
+    return parts.map((part, index) => 
+      part.toLowerCase() === query.toLowerCase() ? 
+        <Text key={index} style={styles.highlightedText}>{part}</Text> : 
+        part
+    );
+  };
+
+  const renderNoteCard = ({item}) => {
+    const titleHighlight = highlightText(item.title, searchQuery);
+    const contentHighlight = highlightText(item.content, searchQuery);
 
     return (
       <TouchableOpacity
         style={[
           styles.noteCard,
-          {backgroundColor: item.color || themeColors.surface}
+          {
+            backgroundColor: item.color || themeColors.noteColors[0],
+          }
         ]}
         onPress={() => navigation.navigate('EditNote', {note: item})}
         activeOpacity={0.7}>
         <Text 
-          style={[styles.noteTitle, {color: noteTextColor}]} 
+          style={[styles.noteTitle, {color: '#000000'}]} 
           numberOfLines={1}>
-          {item.title}
+          {titleHighlight}
         </Text>
         <Text 
-          style={[styles.noteContent, {color: noteSecondaryTextColor}]} 
+          style={[styles.noteContent, {color: 'rgba(0, 0, 0, 0.7)'}]} 
           numberOfLines={3}>
-          {item.content}
+          {contentHighlight}
         </Text>
         <Text 
-          style={[styles.noteDate, {color: noteTertiaryTextColor}]}>
+          style={[styles.noteDate, {color: 'rgba(0, 0, 0, 0.5)'}]}>
           {item.date}
         </Text>
       </TouchableOpacity>
     );
   };
 
+  const ColorPickerModal = () => (
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={showColorPicker}
+      onRequestClose={() => setShowColorPicker(false)}
+    >
+      <TouchableOpacity
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPress={() => setShowColorPicker(false)}
+      >
+        <View style={[styles.colorPickerModal, { backgroundColor: themeColors.surface }]}>
+          <Text style={[styles.colorPickerTitle, { color: themeColors.text }]}>Choose Note Color</Text>
+          <View style={styles.colorGrid}>
+            {themeColors.noteColors.map((color, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[styles.colorOption, { backgroundColor: color }]}
+                onPress={() => {
+                  navigation.navigate('EditNote', { color });
+                  setShowColorPicker(false);
+                }}
+              />
+            ))}
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+
+  const EmptyListMessage = () => (
+    <View style={styles.emptyContainer}>
+      {searchQuery ? (
+        <>
+          <Icon name="search-off" size={48} color={themeColors.textTertiary} />
+          <Text style={[styles.emptyTitle, { color: themeColors.text }]}>No matching notes</Text>
+          <Text style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}>
+            Try searching with different keywords
+          </Text>
+        </>
+      ) : (
+        <>
+          <Icon name="note-add" size={48} color={themeColors.textTertiary} />
+          <Text style={[styles.emptyTitle, { color: themeColors.text }]}>No notes yet</Text>
+          <Text style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}>
+            Tap the + button to create your first note
+          </Text>
+        </>
+      )}
+    </View>
+  );
+
   return (
     <View style={[styles.container, {backgroundColor: themeColors.background}]}>
-      <View style={[styles.header, {backgroundColor: themeColors.surface}]}>
-        <Text style={[styles.title, {color: themeColors.text}]}>Notes</Text>
-        <View style={[styles.searchContainer, {backgroundColor: themeColors.searchBackground}]}>
+      <StatusBar backgroundColor={themeColors.background} barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={[styles.welcomeText, {color: themeColors.textSecondary}]}>Welcome back</Text>
+            <Text style={[styles.title, {color: themeColors.text}]}>My Notes</Text>
+          </View>
+          <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+            <Image 
+              source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+              style={styles.profilePic}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={[styles.searchContainer, {
+          backgroundColor: themeColors.searchBackground,
+          borderColor: isSearching ? themeColors.accent : 'transparent',
+          borderWidth: 1,
+        }]}>
           <Icon
             name="search"
-            size={24}
-            color={themeColors.textTertiary}
+            size={22}
+            color={isSearching ? themeColors.accent : themeColors.textTertiary}
             style={styles.searchIcon}
           />
           <TextInput
@@ -107,21 +191,39 @@ const HomeScreen = ({navigation}) => {
             placeholderTextColor={themeColors.textTertiary}
             value={searchQuery}
             onChangeText={setSearchQuery}
+            onFocus={() => setIsSearching(true)}
+            onBlur={() => setIsSearching(false)}
+            returnKeyType="search"
           />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity 
+              onPress={() => setSearchQuery('')}
+              style={styles.clearButton}
+            >
+              <Icon name="close" size={20} color={themeColors.textTertiary} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       <FlatList
-        data={notes}
+        data={filteredNotes}
         renderItem={renderNoteCard}
         keyExtractor={item => item.id}
         numColumns={2}
-        contentContainerStyle={styles.notesList}
+        contentContainerStyle={[
+          styles.notesList,
+          !filteredNotes.length && styles.emptyList
+        ]}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={EmptyListMessage}
       />
-      <TouchableOpacity
+      <TouchableOpacity 
         style={[styles.fab, {backgroundColor: themeColors.accent}]}
-        onPress={() => navigation.navigate('EditNote')}>
-        <Icon name="add" size={30} color="#FFF" />
+        onPress={() => setShowColorPicker(true)}
+      >
+        <Icon name="add" size={24} color="#FFFFFF" />
       </TouchableOpacity>
+      <ColorPickerModal />
     </View>
   );
 };
@@ -131,66 +233,99 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 15,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  welcomeText: {
+    fontSize: 16,
+    marginBottom: 4,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 16,
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  profilePic: {
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 44,
+    paddingHorizontal: 15,
+    height: 45,
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: 10,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    height: '100%',
+    paddingVertical: 8,
+  },
+  clearButton: {
+    padding: 4,
   },
   notesList: {
-    padding: 12,
+    padding: 20,
+    paddingTop: 10,
+  },
+  emptyList: {
+    flexGrow: 1,
   },
   noteCard: {
     flex: 1,
     margin: 6,
+    padding: 15,
     borderRadius: 16,
-    padding: 16,
     minHeight: 150,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
   },
   noteTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
     marginBottom: 8,
   },
   noteContent: {
     fontSize: 14,
     lineHeight: 20,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   noteDate: {
     fontSize: 12,
-    marginTop: 'auto',
+  },
+  highlightedText: {
+    backgroundColor: 'rgba(255, 107, 107, 0.2)',
+    color: '#000000',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 100,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    paddingHorizontal: 32,
   },
   fab: {
     position: 'absolute',
-    right: 24,
-    bottom: 24,
+    right: 20,
+    bottom: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -203,7 +338,44 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowRadius: 3.84,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  colorPickerModal: {
+    width: '80%',
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  colorPickerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  colorOption: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    margin: 4,
   },
 });
 
