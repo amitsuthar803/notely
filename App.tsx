@@ -69,31 +69,29 @@ const AppContent = () => {
           right: 20,
           elevation: 0,
           backgroundColor: theme === 'dark' ? themeColors.surface : '#FFFFFF',
-          borderRadius: 15,
-          height: 65,
-          paddingBottom: 10,
+          borderRadius: 20,
+          height: 70,
           ...styles.shadow
         },
-        tabBarShowLabel: true,
+        tabBarShowLabel: false,
         tabBarActiveTintColor: themeColors.accent,
         tabBarInactiveTintColor: themeColors.textTertiary,
-        tabBarLabelStyle: {
-          fontSize: 12,
-          marginTop: -5,
-        },
       }}
     >
       <Tab.Screen
         name="NotesStack"
         component={NotesStack}
         options={{
-          tabBarLabel: 'Notes',
           tabBarIcon: ({ focused, color }) => (
-            <Icon
-              name="description"
-              size={24}
-              color={color}
-            />
+            <View style={styles.tabIconContainer}>
+              <Icon
+                name="home"
+                size={24}
+                color={color}
+                style={styles.tabIcon}
+              />
+              {focused && <View style={[styles.tabIndicator, { backgroundColor: themeColors.accent }]} />}
+            </View>
           ),
         }}
       />
@@ -101,13 +99,16 @@ const AppContent = () => {
         name="Todo"
         component={TodoScreen}
         options={{
-          tabBarLabel: 'Tasks',
           tabBarIcon: ({ focused, color }) => (
-            <Icon
-              name="check-circle"
-              size={24}
-              color={color}
-            />
+            <View style={styles.tabIconContainer}>
+              <Icon
+                name="check-circle"
+                size={24}
+                color={color}
+                style={styles.tabIcon}
+              />
+              {focused && <View style={[styles.tabIndicator, { backgroundColor: themeColors.accent }]} />}
+            </View>
           ),
         }}
       />
@@ -115,10 +116,21 @@ const AppContent = () => {
         name="Add"
         component={EditNoteScreen}
         options={{
-          tabBarLabel: '',
           tabBarIcon: ({ focused }) => (
-            <View style={[styles.addButton, { backgroundColor: themeColors.accent }]}>
-              <Icon name="add" size={24} color="#FFFFFF" />
+            <View style={styles.addButtonWrapper}>
+              <View style={[styles.addButtonContainer]}>
+                <View style={[styles.addButton, { backgroundColor: themeColors.accent }]}>
+                  <Icon name="add" size={24} color="#FFFFFF" />
+                </View>
+              </View>
+              <View style={[styles.addButtonBackground, { 
+                backgroundColor: theme === 'dark' ? themeColors.surface : '#FFFFFF',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: -3 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+                elevation: 5,
+              }]} />
             </View>
           ),
         }}
@@ -136,13 +148,16 @@ const AppContent = () => {
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarLabel: 'Settings',
           tabBarIcon: ({ focused, color }) => (
-            <Icon
-              name="settings"
-              size={24}
-              color={color}
-            />
+            <View style={styles.tabIconContainer}>
+              <Icon
+                name="settings"
+                size={24}
+                color={color}
+                style={styles.tabIcon}
+              />
+              {focused && <View style={[styles.tabIndicator, { backgroundColor: themeColors.accent }]} />}
+            </View>
           ),
         }}
       />
@@ -150,13 +165,16 @@ const AppContent = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarLabel: 'Profile',
           tabBarIcon: ({ focused, color }) => (
-            <Icon
-              name="person"
-              size={24}
-              color={color}
-            />
+            <View style={styles.tabIconContainer}>
+              <Icon
+                name="person"
+                size={24}
+                color={color}
+                style={styles.tabIcon}
+              />
+              {focused && <View style={[styles.tabIndicator, { backgroundColor: themeColors.accent }]} />}
+            </View>
           ),
         }}
       />
@@ -187,13 +205,61 @@ const styles = StyleSheet.create({
     shadowRadius: 3.5,
     elevation: 5,
   },
+  tabIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    width: 50,
+  },
+  tabIcon: {
+    marginBottom: 4,
+  },
+  tabIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+  },
+  addButtonWrapper: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 90,
+    height: 90,
+    bottom: -10,
+  },
+  addButtonContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  addButtonBackground: {
+    position: 'absolute',
+    bottom: 0,
+    width: 60,
+    height: 35,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    zIndex: 1,
+  },
   addButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FF6B6B',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -30,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    zIndex: 2,
   },
 });
 
