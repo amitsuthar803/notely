@@ -65,7 +65,17 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
 
   return (
     <View style={styles.tabBarWrapper}>
-      <View style={[styles.tabBarContainer, { backgroundColor: themeColors.tabBar }]}>
+      <View style={[styles.tabBarContainer, { 
+        backgroundColor: theme === 'dark' ? '#1A1A1A' : '#FFFFFF',
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 5,
+      }]}>
         {state.routes.map((route: any, index: number) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
@@ -104,15 +114,23 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
               key={route.key}
               onPress={onPress}
               style={[
-                styles.tabButton,
+                styles.tabItem,
                 isAddButton && styles.addButton,
-                isFocused && !isAddButton && styles.tabButtonActive
+                isAddButton && { backgroundColor: themeColors.accent }
               ]}
             >
               <Icon
                 name={iconName}
                 size={isAddButton ? 32 : 24}
-                color={isAddButton ? '#FFFFFF' : (isFocused ? themeColors.tabBarActive : themeColors.tabBarInactive)}
+                color={
+                  isAddButton
+                    ? '#FFFFFF'
+                    : isFocused
+                    ? themeColors.accent
+                    : theme === 'dark'
+                    ? 'rgba(255,255,255,0.5)'
+                    : 'rgba(0,0,0,0.5)'
+                }
               />
             </TouchableOpacity>
           );
@@ -161,49 +179,38 @@ const styles = StyleSheet.create({
   tabBarWrapper: {
     position: 'absolute',
     bottom: 20,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
+    left: 20,
+    right: 20,
   },
   tabBarContainer: {
     flexDirection: 'row',
     borderRadius: 30,
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-    width: width - 48,
-    justifyContent: 'space-between',
+    height: 64,
     alignItems: 'center',
-    elevation: 8,
+    justifyContent: 'space-around',
+    paddingHorizontal: 16,
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 48,
+    borderRadius: 24,
+  },
+  addButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 2,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  tabButton: {
-    padding: 12,
-    borderRadius: 20,
-  },
-  tabButtonActive: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  addButton: {
-    backgroundColor: '#007AFF',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    transform: [{ translateY: -24 }],
-    shadowColor: '#007AFF',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   comingSoon: {
     flex: 1,

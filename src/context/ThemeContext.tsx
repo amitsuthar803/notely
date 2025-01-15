@@ -1,11 +1,13 @@
 import React, {createContext, useContext, useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { colors } from '../theme/colors';
 
 type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
+  colors: typeof colors;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -13,7 +15,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({
   children,
 }) => {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
     loadTheme();
@@ -22,7 +24,7 @@ export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({
   const loadTheme = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem('theme');
-      if (savedTheme) {
+      if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
         setTheme(savedTheme as Theme);
       }
     } catch (error) {
@@ -41,7 +43,7 @@ export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({
   };
 
   return (
-    <ThemeContext.Provider value={{theme, toggleTheme}}>
+    <ThemeContext.Provider value={{theme, toggleTheme, colors}}>
       {children}
     </ThemeContext.Provider>
   );
@@ -55,25 +57,4 @@ export const useTheme = () => {
   return context;
 };
 
-export const colors = {
-  light: {
-    background: '#FFFFFF',
-    text: '#000000',
-    secondaryText: '#666666',
-    card: '#F8F8F8',
-    accent: '#007AFF',
-    tabBar: '#1A1A1A',
-    tabBarInactive: 'rgba(255,255,255,0.5)',
-    tabBarActive: '#FFFFFF',
-  },
-  dark: {
-    background: '#121212',
-    text: '#FFFFFF',
-    secondaryText: '#AAAAAA',
-    card: '#1E1E1E',
-    accent: '#007AFF',
-    tabBar: '#1A1A1A',
-    tabBarInactive: 'rgba(255,255,255,0.5)',
-    tabBarActive: '#FFFFFF',
-  },
-};
+export { colors };
