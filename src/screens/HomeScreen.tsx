@@ -15,6 +15,7 @@ import {useTheme} from '../context/ThemeContext';
 import {useUser} from '../context/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {colors} from '../theme/colors';
+import {format} from 'date-fns';
 
 const HomeScreen = ({navigation}) => {
   const {theme} = useTheme();
@@ -54,10 +55,8 @@ const HomeScreen = ({navigation}) => {
       .map(note => {
         const titleMatch = note.title.toLowerCase().includes(query);
         const contentMatch = note.content.toLowerCase().includes(query);
-        const matchScore = 
-          (titleMatch ? 2 : 0) + 
-          (contentMatch ? 1 : 0);
-        return { ...note, matchScore };
+        const matchScore = (titleMatch ? 2 : 0) + (contentMatch ? 1 : 0);
+        return {...note, matchScore};
       })
       .filter(note => note.matchScore > 0)
       .sort((a, b) => b.matchScore - a.matchScore);
@@ -68,10 +67,14 @@ const HomeScreen = ({navigation}) => {
     if (!query.trim() || !text) return text;
 
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
-    return parts.map((part, index) => 
-      part.toLowerCase() === query.toLowerCase() ? 
-        <Text key={index} style={styles.highlightedText}>{part}</Text> : 
+    return parts.map((part, index) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <Text key={index} style={styles.highlightedText}>
+          {part}
+        </Text>
+      ) : (
         part
+      ),
     );
   };
 
@@ -85,23 +88,20 @@ const HomeScreen = ({navigation}) => {
           styles.noteCard,
           {
             backgroundColor: item.color || themeColors.noteColors[0],
-          }
+          },
         ]}
         onPress={() => navigation.navigate('EditNote', {note: item})}
         activeOpacity={0.7}>
-        <Text 
-          style={[styles.noteTitle, {color: '#000000'}]} 
-          numberOfLines={1}>
+        <Text style={[styles.noteTitle, {color: '#000000'}]} numberOfLines={1}>
           {titleHighlight}
         </Text>
-        <Text 
-          style={[styles.noteContent, {color: 'rgba(0, 0, 0, 0.7)'}]} 
+        <Text
+          style={[styles.noteContent, {color: 'rgba(0, 0, 0, 0.7)'}]}
           numberOfLines={3}>
           {contentHighlight}
         </Text>
-        <Text 
-          style={[styles.noteDate, {color: 'rgba(0, 0, 0, 0.5)'}]}>
-          {item.date}
+        <Text style={[styles.noteDate, {color: 'rgba(0, 0, 0, 0.5)'}]}>
+          {format(new Date(item.date), 'MMM dd, yyyy')}
         </Text>
       </TouchableOpacity>
     );
@@ -112,22 +112,26 @@ const HomeScreen = ({navigation}) => {
       animationType="fade"
       transparent={true}
       visible={showColorPicker}
-      onRequestClose={() => setShowColorPicker(false)}
-    >
+      onRequestClose={() => setShowColorPicker(false)}>
       <TouchableOpacity
         style={styles.modalOverlay}
         activeOpacity={1}
-        onPress={() => setShowColorPicker(false)}
-      >
-        <View style={[styles.colorPickerModal, { backgroundColor: themeColors.surface }]}>
-          <Text style={[styles.colorPickerTitle, { color: themeColors.text }]}>Choose Note Color</Text>
+        onPress={() => setShowColorPicker(false)}>
+        <View
+          style={[
+            styles.colorPickerModal,
+            {backgroundColor: themeColors.surface},
+          ]}>
+          <Text style={[styles.colorPickerTitle, {color: themeColors.text}]}>
+            Choose Note Color
+          </Text>
           <View style={styles.colorGrid}>
             {themeColors.noteColors.map((color, index) => (
               <TouchableOpacity
                 key={index}
-                style={[styles.colorOption, { backgroundColor: color }]}
+                style={[styles.colorOption, {backgroundColor: color}]}
                 onPress={() => {
-                  navigation.navigate('EditNote', { color });
+                  navigation.navigate('EditNote', {color});
                   setShowColorPicker(false);
                 }}
               />
@@ -143,16 +147,22 @@ const HomeScreen = ({navigation}) => {
       {searchQuery ? (
         <>
           <Icon name="search-off" size={48} color={themeColors.textTertiary} />
-          <Text style={[styles.emptyTitle, { color: themeColors.text }]}>No matching notes</Text>
-          <Text style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}>
+          <Text style={[styles.emptyTitle, {color: themeColors.text}]}>
+            No matching notes
+          </Text>
+          <Text
+            style={[styles.emptySubtitle, {color: themeColors.textSecondary}]}>
             Try searching with different keywords
           </Text>
         </>
       ) : (
         <>
           <Icon name="note-add" size={48} color={themeColors.textTertiary} />
-          <Text style={[styles.emptyTitle, { color: themeColors.text }]}>No notes yet</Text>
-          <Text style={[styles.emptySubtitle, { color: themeColors.textSecondary }]}>
+          <Text style={[styles.emptyTitle, {color: themeColors.text}]}>
+            No notes yet
+          </Text>
+          <Text
+            style={[styles.emptySubtitle, {color: themeColors.textSecondary}]}>
             Tap the + button to create your first note
           </Text>
         </>
@@ -162,25 +172,41 @@ const HomeScreen = ({navigation}) => {
 
   return (
     <View style={[styles.container, {backgroundColor: themeColors.background}]}>
-      <StatusBar backgroundColor={themeColors.background} barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
+      <StatusBar
+        backgroundColor={themeColors.background}
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+      />
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <View>
-            <Text style={[styles.welcomeText, {color: themeColors.textSecondary}]}>Welcome back</Text>
-            <Text style={[styles.title, {color: themeColors.text}]}>{userData?.name || 'My'}'s Notes</Text>
+            <Text
+              style={[styles.welcomeText, {color: themeColors.textSecondary}]}>
+              Welcome back
+            </Text>
+            <Text style={[styles.title, {color: themeColors.text}]}>
+              {userData?.name || 'My'}'s Notes
+            </Text>
           </View>
           <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Image 
-              source={{ uri: userData?.avatar || 'https://randomuser.me/api/portraits/men/32.jpg' }}
+            <Image
+              source={{
+                uri:
+                  userData?.avatar ||
+                  'https://randomuser.me/api/portraits/men/32.jpg',
+              }}
               style={styles.profilePic}
             />
           </TouchableOpacity>
         </View>
-        <View style={[styles.searchContainer, {
-          backgroundColor: themeColors.searchBackground,
-          borderColor: isSearching ? themeColors.accent : 'transparent',
-          borderWidth: 1,
-        }]}>
+        <View
+          style={[
+            styles.searchContainer,
+            {
+              backgroundColor: themeColors.searchBackground,
+              borderColor: isSearching ? themeColors.accent : 'transparent',
+              borderWidth: 1,
+            },
+          ]}>
           <Icon
             name="search"
             size={22}
@@ -198,10 +224,9 @@ const HomeScreen = ({navigation}) => {
             returnKeyType="search"
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setSearchQuery('')}
-              style={styles.clearButton}
-            >
+              style={styles.clearButton}>
               <Icon name="close" size={20} color={themeColors.textTertiary} />
             </TouchableOpacity>
           )}
@@ -214,7 +239,7 @@ const HomeScreen = ({navigation}) => {
         numColumns={2}
         contentContainerStyle={[
           styles.notesList,
-          !filteredNotes.length && styles.emptyList
+          !filteredNotes.length && styles.emptyList,
         ]}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={EmptyListMessage}
@@ -283,6 +308,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 16,
     minHeight: 150,
+    justifyContent: 'space-between',
   },
   noteTitle: {
     fontSize: 17,
@@ -296,6 +322,9 @@ const styles = StyleSheet.create({
   },
   noteDate: {
     fontSize: 12,
+    fontWeight: '600',
+    marginTop: 'auto',
+    textAlign: 'right',
   },
   highlightedText: {
     backgroundColor: 'rgba(255, 107, 107, 0.2)',
