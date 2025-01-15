@@ -52,9 +52,7 @@ const SettingsScreen = () => {
       ]}>
       <View style={styles.profileSection}>
         <Image
-          source={{
-            uri: 'https://media.licdn.com/dms/image/v2/D5603AQEITu0FkD9jWg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1728227473765?e=1742428800&v=beta&t=nlS4NZqPtlZR6dlxNc00ZfDjpINM5el7lyyA18M-d_Y',
-          }}
+          source={require('../../public/me.jpg')}
           style={styles.profileImage}
         />
         <Text style={[styles.profileName, {color: themeColors[theme].text}]}>

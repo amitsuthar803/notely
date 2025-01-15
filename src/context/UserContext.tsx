@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {createContext, useContext, useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface UserData {
@@ -15,7 +15,9 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const UserProvider: React.FC<{children: React.ReactNode}> = ({
+  children,
+}) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,13 +32,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserData(JSON.parse(savedData));
       } else {
         // Set default user data
-        const defaultData = {
-          name: 'John Doe',
-          email: 'john@example.com',
-          avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        const defaultUserData = {
+          name: 'Amit Suthar',
+          email: 'amit@example.com',
+          avatar: require('../../public/me.jpg'),
         };
-        await AsyncStorage.setItem('userData', JSON.stringify(defaultData));
-        setUserData(defaultData);
+        await AsyncStorage.setItem('userData', JSON.stringify(defaultUserData));
+        setUserData(defaultUserData);
       }
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -47,7 +49,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateUserData = async (newData: Partial<UserData>) => {
     try {
-      const updatedData = { ...userData, ...newData };
+      const updatedData = {...userData, ...newData};
       await AsyncStorage.setItem('userData', JSON.stringify(updatedData));
       setUserData(updatedData);
     } catch (error) {
@@ -56,7 +58,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <UserContext.Provider value={{ userData, updateUserData, isLoading }}>
+    <UserContext.Provider value={{userData, updateUserData, isLoading}}>
       {children}
     </UserContext.Provider>
   );

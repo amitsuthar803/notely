@@ -142,10 +142,6 @@ const EditNoteScreen = ({route, navigation}: any) => {
         />
       </ScrollView>
 
-      <Text style={styles.copyright}>
-        Designed & Developed by Amit Suthar {new Date().getFullYear()}
-      </Text>
-
       <Modal
         animationType="fade"
         transparent={true}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -11,22 +11,26 @@ import {
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useTheme } from '../context/ThemeContext';
-import { useUser } from '../context/UserContext';
-import { colors } from '../theme/colors';
+import {useTheme} from '../context/ThemeContext';
+import {useUser} from '../context/UserContext';
+import {colors} from '../theme/colors';
 
-const ProfileScreen = ({ navigation }) => {
-  const { theme } = useTheme();
+const ProfileScreen = ({navigation}) => {
+  const {theme} = useTheme();
   const themeColors = colors[theme];
-  const { userData, updateUserData, isLoading } = useUser();
-  
+  const {userData, updateUserData, isLoading} = useUser();
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(userData?.name || '');
   const [editedEmail, setEditedEmail] = useState(userData?.email || '');
 
   if (isLoading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: themeColors.background }]}>
+      <View
+        style={[
+          styles.loadingContainer,
+          {backgroundColor: themeColors.background},
+        ]}>
         <ActivityIndicator size="large" color={themeColors.accent} />
       </View>
     );
@@ -51,22 +55,23 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: themeColors.background }]}
-      contentContainerStyle={styles.contentContainer}
-    >
+      style={[styles.container, {backgroundColor: themeColors.background}]}
+      contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: themeColors.text }]}>Profile</Text>
+        <Text style={[styles.title, {color: themeColors.text}]}>Profile</Text>
       </View>
 
       <View style={styles.profileSection}>
         <View style={styles.avatarContainer}>
           <Image
-            source={{ uri: userData?.avatar || 'https://randomuser.me/api/portraits/men/32.jpg' }}
+            source={require('../../public/me.jpg')}
             style={styles.avatar}
           />
           <TouchableOpacity
-            style={[styles.editAvatarButton, { backgroundColor: themeColors.accent }]}
-          >
+            style={[
+              styles.editAvatarButton,
+              {backgroundColor: themeColors.accent},
+            ]}>
             <Icon name="camera-alt" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
@@ -75,20 +80,26 @@ const ProfileScreen = ({ navigation }) => {
           {isEditing ? (
             <>
               <TextInput
-                style={[styles.input, { 
-                  backgroundColor: themeColors.searchBackground,
-                  color: themeColors.text,
-                }]}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: themeColors.searchBackground,
+                    color: themeColors.text,
+                  },
+                ]}
                 value={editedName}
                 onChangeText={setEditedName}
                 placeholder="Your name"
                 placeholderTextColor={themeColors.textTertiary}
               />
               <TextInput
-                style={[styles.input, { 
-                  backgroundColor: themeColors.searchBackground,
-                  color: themeColors.text,
-                }]}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: themeColors.searchBackground,
+                    color: themeColors.text,
+                  },
+                ]}
                 value={editedEmail}
                 onChangeText={setEditedEmail}
                 placeholder="Your email"
@@ -98,15 +109,16 @@ const ProfileScreen = ({ navigation }) => {
               />
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                  style={[styles.button, { backgroundColor: themeColors.accent }]}
-                  onPress={handleSave}
-                >
+                  style={[styles.button, {backgroundColor: themeColors.accent}]}
+                  onPress={handleSave}>
                   <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.button, { backgroundColor: themeColors.textTertiary }]}
-                  onPress={() => setIsEditing(false)}
-                >
+                  style={[
+                    styles.button,
+                    {backgroundColor: themeColors.textTertiary},
+                  ]}
+                  onPress={() => setIsEditing(false)}>
                   <Text style={styles.buttonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
@@ -114,17 +126,29 @@ const ProfileScreen = ({ navigation }) => {
           ) : (
             <>
               <View style={styles.infoRow}>
-                <Text style={[styles.label, { color: themeColors.textSecondary }]}>Name</Text>
-                <Text style={[styles.value, { color: themeColors.text }]}>{userData?.name}</Text>
+                <Text
+                  style={[styles.label, {color: themeColors.textSecondary}]}>
+                  Name
+                </Text>
+                <Text style={[styles.value, {color: themeColors.text}]}>
+                  {userData?.name}
+                </Text>
               </View>
               <View style={styles.infoRow}>
-                <Text style={[styles.label, { color: themeColors.textSecondary }]}>Email</Text>
-                <Text style={[styles.value, { color: themeColors.text }]}>{userData?.email}</Text>
+                <Text
+                  style={[styles.label, {color: themeColors.textSecondary}]}>
+                  Email
+                </Text>
+                <Text style={[styles.value, {color: themeColors.text}]}>
+                  {userData?.email}
+                </Text>
               </View>
               <TouchableOpacity
-                style={[styles.editButton, { backgroundColor: themeColors.accent }]}
-                onPress={() => setIsEditing(true)}
-              >
+                style={[
+                  styles.editButton,
+                  {backgroundColor: themeColors.accent},
+                ]}
+                onPress={() => setIsEditing(true)}>
                 <Icon name="edit" size={20} color="#FFFFFF" />
                 <Text style={styles.editButtonText}>Edit Profile</Text>
               </TouchableOpacity>
@@ -167,11 +191,17 @@ const styles = StyleSheet.create({
   avatarContainer: {
     position: 'relative',
     marginBottom: 20,
+    padding: 4,
+    backgroundColor: '#fff',
+    borderRadius: 62,
+    elevation: 4,
   },
   avatar: {
     width: 120,
     height: 120,
     borderRadius: 60,
+    borderWidth: 3,
+    borderColor: '#fff',
   },
   editAvatarButton: {
     position: 'absolute',

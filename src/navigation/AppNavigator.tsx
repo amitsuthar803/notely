@@ -1,10 +1,10 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import TabNavigator from './TabNavigator';
-import { useTheme } from '../context/ThemeContext';
+import {useTheme} from '../context/ThemeContext';
 
 const AppNavigator = () => {
-  const { theme } = useTheme();
+  const {theme} = useTheme();
 
   return (
     <NavigationContainer theme={theme}>

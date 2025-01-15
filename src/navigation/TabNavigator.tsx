@@ -1,16 +1,22 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StyleSheet, View, TouchableOpacity, Animated, Dimensions, Platform } from 'react-native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+  Platform,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import TodoScreen from '../screens/TodoScreen';
-import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator();
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
-const TabIcon = ({ name, size, color, focused, theme }) => {
+const TabIcon = ({name, size, color, focused, theme}) => {
   const scaleValue = React.useRef(new Animated.Value(1)).current;
   const translateY = React.useRef(new Animated.Value(0)).current;
 
@@ -18,7 +24,7 @@ const TabIcon = ({ name, size, color, focused, theme }) => {
     if (focused) {
       Animated.parallel([
         Animated.spring(scaleValue, {
-          toValue: 1.2, 
+          toValue: 1.2,
           tension: 100,
           friction: 10,
           useNativeDriver: true,
@@ -50,12 +56,16 @@ const TabIcon = ({ name, size, color, focused, theme }) => {
 
   return (
     <View style={styles.iconContainer}>
-      {focused && <View style={[styles.indicator, { backgroundColor: theme.colors.primary }]} />}
+      {focused && (
+        <View
+          style={[styles.indicator, {backgroundColor: theme.colors.primary}]}
+        />
+      )}
       <Animated.View
         style={[
           styles.iconWrapper,
           {
-            transform: [{ scale: scaleValue }, { translateY }],
+            transform: [{scale: scaleValue}, {translateY}],
           },
         ]}>
         <Icon name={name} size={size} color={color} />
@@ -65,31 +75,31 @@ const TabIcon = ({ name, size, color, focused, theme }) => {
 };
 
 const TabNavigator = () => {
-  const { theme } = useTheme();
+  const theme = {
+    colors: {
+      primary: '#007AFF',
+      text: '#8E8E93',
+    },
+  };
 
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: false,
+        tabBarStyle: [
+          styles.tabBar,
+          Platform.select({
+            ios: styles.shadowIOS,
+            android: styles.shadowAndroid,
+          }),
+        ],
         tabBarShowLabel: false,
-        tabBarStyle: {
-          position: 'absolute',
-          bottom: 25,
-          left: 20,
-          right: 20,
-          elevation: 0,
-          backgroundColor: theme.colors.card,
-          borderRadius: 25,
-          height: 65,
-          borderTopWidth: 0,
-          ...styles.shadow,
-        },
+        headerShown: false,
       }}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <TabIcon
               name="home"
               size={22}
@@ -104,7 +114,7 @@ const TabNavigator = () => {
         name="Todo"
         component={TodoScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <TabIcon
               name="check-square"
               size={22}
@@ -119,18 +129,14 @@ const TabNavigator = () => {
         name="Add"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={[styles.addButton, { backgroundColor: theme.colors.primary }]}>
-              <Icon name="plus" size={24} color="#FFFFFF" />
-            </View>
-          ),
+          tabBarButton: () => null,
         }}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <TabIcon
               name="user"
               size={22}
@@ -146,15 +152,28 @@ const TabNavigator = () => {
 };
 
 const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 10,
+  tabBar: {
+    position: 'absolute',
+    bottom: 25,
+    left: 20,
+    right: 20,
+    height: 30,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 5,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 10,
+      },
+    }),
   },
   iconContainer: {
     height: 50,
@@ -177,25 +196,18 @@ const styles = StyleSheet.create({
   addButton: {
     width: 48,
     height: 48,
+    backgroundColor: '#007AFF',
     borderRadius: 24,
-    backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 4,
-        },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    elevation: 5,
+    shadowColor: '#007AFF',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
 });
 

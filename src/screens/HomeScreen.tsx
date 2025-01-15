@@ -189,11 +189,7 @@ const HomeScreen = ({navigation}) => {
           </View>
           <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
             <Image
-              source={{
-                uri:
-                  userData?.avatar ||
-                  'https://randomuser.me/api/portraits/men/32.jpg',
-              }}
+              source={require('../../public/me.jpg')}
               style={styles.profilePic}
             />
           </TouchableOpacity>
