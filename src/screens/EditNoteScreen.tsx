@@ -8,14 +8,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Animated,
   Modal,
   Text,
+  Dimensions,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTheme } from '../context/ThemeContext';
 import { colors } from '../theme/colors';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface Note {
   id: string;
@@ -29,7 +31,7 @@ const EditNoteScreen = ({ route, navigation }: any) => {
   const note = route.params?.note;
   const [title, setTitle] = useState(note?.title || '');
   const [content, setContent] = useState(note?.content || '');
-  const [selectedColor, setSelectedColor] = useState(route.params?.color || note?.color || colors.light.noteColors[0]);
+  const [selectedColor, setSelectedColor] = useState(note?.color || colors.light.noteColors[0]);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const { theme } = useTheme();
   const themeColors = colors[theme];
@@ -50,7 +52,7 @@ const EditNoteScreen = ({ route, navigation }: any) => {
         </View>
       ),
     });
-  }, [title, content, selectedColor]);
+  }, [title, content, selectedColor, navigation, themeColors.accent]);
 
   const handleSave = async () => {
     if (!title.trim() && !content.trim()) {
@@ -59,9 +61,6 @@ const EditNoteScreen = ({ route, navigation }: any) => {
     }
 
     try {
-      const savedNotes = await AsyncStorage.getItem('notes');
-      let notes: Note[] = savedNotes ? JSON.parse(savedNotes) : [];
-
       const newNote = {
         id: note?.id || Date.now().toString(),
         title: title.trim(),
@@ -70,8 +69,25 @@ const EditNoteScreen = ({ route, navigation }: any) => {
         color: selectedColor,
       };
 
+      const savedNotes = await AsyncStorage.getItem('notes');
+      let notes: Note[] = [];
+      
+      if (savedNotes) {
+        try {
+          notes = JSON.parse(savedNotes);
+        } catch (e) {
+          console.error('Error parsing saved notes:', e);
+          notes = [];
+        }
+      }
+
       if (note) {
-        notes = notes.map((n) => (n.id === note.id ? newNote : n));
+        const index = notes.findIndex(n => n.id === note.id);
+        if (index !== -1) {
+          notes[index] = newNote;
+        } else {
+          notes.unshift(newNote);
+        }
       } else {
         notes.unshift(newNote);
       }
@@ -80,7 +96,7 @@ const EditNoteScreen = ({ route, navigation }: any) => {
       navigation.goBack();
     } catch (error) {
       console.error('Error saving note:', error);
-      Alert.alert('Error', 'Failed to save note');
+      Alert.alert('Error', 'Failed to save note. Please try again.');
     }
   };
 
@@ -108,7 +124,7 @@ const EditNoteScreen = ({ route, navigation }: any) => {
         <View style={[styles.colorPickerModal, { backgroundColor: themeColors.surface }]}>
           <Text style={[styles.colorPickerTitle, { color: themeColors.text }]}>Note Color</Text>
           <View style={styles.colorGrid}>
-            {themeColors.noteColors.map((color, index) => (
+            {colors[theme].noteColors.map((color, index) => (
               <TouchableOpacity
                 key={index}
                 style={[
@@ -191,6 +207,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: 8,
   },
+  saveButton: {
+    padding: 8,
+  },
   colorDot: {
     width: 32,
     height: 32,
@@ -205,10 +224,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 3,
-    elevation: 2,
-  },
-  saveButton: {
-    padding: 8,
+    elevation: 3,
   },
   modalOverlay: {
     flex: 1,
@@ -217,9 +233,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   colorPickerModal: {
-    width: '80%',
+    width: SCREEN_WIDTH - 80,
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 15,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -231,8 +247,8 @@ const styles = StyleSheet.create({
   },
   colorPickerTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
+    fontWeight: 'bold',
+    marginBottom: 20,
     textAlign: 'center',
   },
   colorGrid: {
@@ -242,12 +258,20 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   colorOption: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    margin: 4,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    margin: 5,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   selectedColor: {
     borderWidth: 2,

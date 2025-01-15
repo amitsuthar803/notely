@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -69,8 +69,9 @@ const AppContent = () => {
           right: 20,
           elevation: 0,
           backgroundColor: theme === 'dark' ? themeColors.surface : '#FFFFFF',
-          borderRadius: 20,
+          borderRadius: 30,
           height: 70,
+          borderTopWidth: 0,
           ...styles.shadow
         },
         tabBarShowLabel: false,
@@ -84,13 +85,20 @@ const AppContent = () => {
         options={{
           tabBarIcon: ({ focused, color }) => (
             <View style={styles.tabIconContainer}>
+              <Animated.View style={[
+                styles.tabIndicator,
+                {
+                  backgroundColor: themeColors.accent,
+                  opacity: focused ? 1 : 0,
+                  transform: [{ scaleX: focused ? 1 : 0 }]
+                }
+              ]} />
               <Icon
                 name="home"
-                size={24}
-                color={color}
+                size={22}
+                color={focused ? themeColors.accent : themeColors.textTertiary}
                 style={styles.tabIcon}
               />
-              {focused && <View style={[styles.tabIndicator, { backgroundColor: themeColors.accent }]} />}
             </View>
           ),
         }}
@@ -101,13 +109,20 @@ const AppContent = () => {
         options={{
           tabBarIcon: ({ focused, color }) => (
             <View style={styles.tabIconContainer}>
+              <Animated.View style={[
+                styles.tabIndicator,
+                {
+                  backgroundColor: themeColors.accent,
+                  opacity: focused ? 1 : 0,
+                  transform: [{ scaleX: focused ? 1 : 0 }]
+                }
+              ]} />
               <Icon
                 name="check-circle"
-                size={24}
-                color={color}
+                size={22}
+                color={focused ? themeColors.accent : themeColors.textTertiary}
                 style={styles.tabIcon}
               />
-              {focused && <View style={[styles.tabIndicator, { backgroundColor: themeColors.accent }]} />}
             </View>
           ),
         }}
@@ -118,19 +133,9 @@ const AppContent = () => {
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.addButtonWrapper}>
-              <View style={[styles.addButtonContainer]}>
-                <View style={[styles.addButton, { backgroundColor: themeColors.accent }]}>
-                  <Icon name="add" size={24} color="#FFFFFF" />
-                </View>
+              <View style={[styles.addButton, { backgroundColor: themeColors.accent }]}>
+                <Icon name="add" size={24} color="#FFFFFF" />
               </View>
-              <View style={[styles.addButtonBackground, { 
-                backgroundColor: theme === 'dark' ? themeColors.surface : '#FFFFFF',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -3 },
-                shadowOpacity: 0.1,
-                shadowRadius: 2,
-                elevation: 5,
-              }]} />
             </View>
           ),
         }}
@@ -145,35 +150,49 @@ const AppContent = () => {
         })}
       />
       <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
+        name="Search"
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ focused, color }) => (
             <View style={styles.tabIconContainer}>
+              <Animated.View style={[
+                styles.tabIndicator,
+                {
+                  backgroundColor: themeColors.accent,
+                  opacity: focused ? 1 : 0,
+                  transform: [{ scaleX: focused ? 1 : 0 }]
+                }
+              ]} />
               <Icon
-                name="settings"
-                size={24}
-                color={color}
+                name="search"
+                size={22}
+                color={focused ? themeColors.accent : themeColors.textTertiary}
                 style={styles.tabIcon}
               />
-              {focused && <View style={[styles.tabIndicator, { backgroundColor: themeColors.accent }]} />}
             </View>
           ),
         }}
       />
       <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="Settings"
+        component={SettingsScreen}
         options={{
           tabBarIcon: ({ focused, color }) => (
             <View style={styles.tabIconContainer}>
+              <Animated.View style={[
+                styles.tabIndicator,
+                {
+                  backgroundColor: themeColors.accent,
+                  opacity: focused ? 1 : 0,
+                  transform: [{ scaleX: focused ? 1 : 0 }]
+                }
+              ]} />
               <Icon
-                name="person"
-                size={24}
-                color={color}
+                name="settings"
+                size={22}
+                color={focused ? themeColors.accent : themeColors.textTertiary}
                 style={styles.tabIcon}
               />
-              {focused && <View style={[styles.tabIndicator, { backgroundColor: themeColors.accent }]} />}
             </View>
           ),
         }}
@@ -202,64 +221,55 @@ const styles = StyleSheet.create({
       height: 10,
     },
     shadowOpacity: 0.15,
-    shadowRadius: 3.5,
-    elevation: 5,
+    shadowRadius: 12,
+    elevation: 8,
   },
   tabIconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100%',
+    height: 50,
     width: 50,
+    position: 'relative',
   },
   tabIcon: {
-    marginBottom: 4,
+    marginTop: 15,
   },
   tabIndicator: {
     position: 'absolute',
-    bottom: 8,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    top: 0,
+    width: 20,
+    height: 3,
+    borderRadius: 3,
   },
   addButtonWrapper: {
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 90,
-    height: 90,
-    bottom: -10,
-  },
-  addButtonContainer: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 2,
-  },
-  addButtonBackground: {
-    position: 'absolute',
-    bottom: 0,
-    width: 60,
-    height: 35,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    zIndex: 1,
+    bottom: 5,
+    left: '50%',
+    transform: [{ translateX: -25 }],
   },
   addButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
-    zIndex: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
 });
 
