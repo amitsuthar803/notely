@@ -4,91 +4,135 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Switch,
   ScrollView,
+  Linking,
+  Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useTheme } from '../context/ThemeContext';
-import { colors } from '../theme/colors';
+import {useTheme} from '../context/ThemeContext';
 
 const SettingsScreen = () => {
-  const { theme, toggleTheme } = useTheme();
-  const themeColors = colors[theme];
+  const {theme, toggleTheme, colors: themeColors} = useTheme();
 
-  const renderSettingItem = (
-    icon: string,
-    title: string,
-    description: string | null,
-    rightElement: React.ReactNode,
-  ) => (
-    <View style={[styles.settingItem, { borderBottomColor: themeColors.textTertiary + '20' }]}>
-      <View style={styles.settingLeft}>
-        <View style={[styles.iconContainer, { backgroundColor: themeColors.textTertiary + '20' }]}>
-          <Icon name={icon} size={24} color={themeColors.textSecondary} />
-        </View>
-        <View style={styles.settingTexts}>
-          <Text style={[styles.settingTitle, { color: themeColors.text }]}>{title}</Text>
-          {description && (
-            <Text style={[styles.settingDescription, { color: themeColors.textSecondary }]}>
-              {description}
-            </Text>
-          )}
-        </View>
-      </View>
-      {rightElement}
-    </View>
-  );
+  const settings = [
+    {
+      title: 'Appearance',
+      items: [
+        {
+          icon: theme === 'dark' ? 'dark-mode' : 'light-mode',
+          label: 'Theme',
+          value: theme === 'dark' ? 'Dark' : 'Light',
+          onPress: toggleTheme,
+        },
+      ],
+    },
+    {
+      title: 'About',
+      items: [
+        {
+          icon: 'info',
+          label: 'Version',
+          value: '1.0.0',
+        },
+        {
+          icon: 'code',
+          label: 'Source Code',
+          value: 'GitHub',
+          onPress: () => Linking.openURL('https://github.com/amitsuthar803'),
+        },
+      ],
+    },
+  ];
 
   return (
-    <ScrollView 
-      style={[styles.container, { backgroundColor: themeColors.background }]}
-      contentContainerStyle={styles.contentContainer}
-    >
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: themeColors.textSecondary }]}>Appearance</Text>
-        {renderSettingItem(
-          'dark-mode',
-          'Dark Mode',
-          'Switch between light and dark theme',
-          <Switch
-            value={theme === 'dark'}
-            onValueChange={toggleTheme}
-            trackColor={{ false: '#767577', true: themeColors.accent + '80' }}
-            thumbColor={theme === 'dark' ? themeColors.accent : '#f4f3f4'}
-          />
-        )}
+    <ScrollView
+      style={[
+        styles.container,
+        {backgroundColor: themeColors[theme].background},
+      ]}>
+      <View style={styles.profileSection}>
+        <Image
+          source={{
+            uri: 'https://media.licdn.com/dms/image/v2/D5603AQEITu0FkD9jWg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1728227473765?e=1742428800&v=beta&t=nlS4NZqPtlZR6dlxNc00ZfDjpINM5el7lyyA18M-d_Y',
+          }}
+          style={styles.profileImage}
+        />
+        <Text style={[styles.profileName, {color: themeColors[theme].text}]}>
+          Amit Suthar
+        </Text>
+        <TouchableOpacity
+          style={styles.githubButton}
+          onPress={() => Linking.openURL('https://github.com/amitsuthar803')}>
+          <Icon name="code" size={20} color="#fff" style={styles.githubIcon} />
+          <Text style={styles.githubText}>GitHub Profile</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: themeColors.textSecondary }]}>About</Text>
-        {renderSettingItem(
-          'info',
-          'Version',
-          'Current version of the app',
-          <Text style={[styles.versionText, { color: themeColors.textTertiary }]}>1.0.0</Text>
-        )}
-        {renderSettingItem(
-          'code',
-          'Source Code',
-          'View the source code on GitHub',
-          <Icon name="chevron-right" size={24} color={themeColors.textTertiary} />
-        )}
-      </View>
+      {settings.map((section, index) => (
+        <View key={index} style={styles.section}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              {color: themeColors[theme].textSecondary},
+            ]}>
+            {section.title}
+          </Text>
+          <View
+            style={[
+              styles.card,
+              {backgroundColor: themeColors[theme].surface},
+            ]}>
+            {section.items.map((item, itemIndex) => (
+              <TouchableOpacity
+                key={itemIndex}
+                style={[
+                  styles.settingItem,
+                  itemIndex < section.items.length - 1 && styles.borderBottom,
+                ]}
+                onPress={item.onPress}>
+                <View style={styles.settingLeft}>
+                  <Icon
+                    name={item.icon}
+                    size={24}
+                    color={themeColors[theme].accent}
+                    style={styles.icon}
+                  />
+                  <Text
+                    style={[styles.label, {color: themeColors[theme].text}]}>
+                    {item.label}
+                  </Text>
+                </View>
+                <View style={styles.settingRight}>
+                  <Text
+                    style={[
+                      styles.value,
+                      {color: themeColors[theme].textSecondary},
+                    ]}>
+                    {item.value}
+                  </Text>
+                  {item.onPress && (
+                    <Icon
+                      name="chevron-right"
+                      size={24}
+                      color={themeColors[theme].textTertiary}
+                    />
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      ))}
 
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: themeColors.textSecondary }]}>Support</Text>
-        {renderSettingItem(
-          'star',
-          'Rate App',
-          'Rate us on the App Store',
-          <Icon name="chevron-right" size={24} color={themeColors.textTertiary} />
-        )}
-        {renderSettingItem(
-          'email',
-          'Contact Us',
-          'Get in touch with our support team',
-          <Icon name="chevron-right" size={24} color={themeColors.textTertiary} />
-        )}
+      <View style={styles.footer}>
+        <Text
+          style={[styles.copyright, {color: themeColors[theme].textSecondary}]}>
+          Designed & Developed by Amit Suthar
+        </Text>
+        <Text
+          style={[styles.copyright, {color: themeColors[theme].textTertiary}]}>
+          {new Date().getFullYear()} All rights reserved
+        </Text>
       </View>
     </ScrollView>
   );
@@ -97,54 +141,92 @@ const SettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 16,
   },
-  contentContainer: {
-    paddingBottom: 80, // Add padding for bottom tab bar
+  profileSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 12,
+  },
+  profileName: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  githubButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#24292e',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  githubIcon: {
+    marginRight: 8,
+  },
+  githubText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
   },
   section: {
-    marginTop: 24,
+    marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    marginLeft: 16,
     marginBottom: 8,
+    marginLeft: 8,
     textTransform: 'uppercase',
+  },
+  card: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    elevation: 2,
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'transparent',
+  },
+  borderBottom: {
     borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   settingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+  icon: {
     marginRight: 16,
   },
-  settingTexts: {
-    flex: 1,
-  },
-  settingTitle: {
+  label: {
     fontSize: 16,
     fontWeight: '500',
   },
-  settingDescription: {
-    fontSize: 14,
-    marginTop: 2,
+  settingRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  versionText: {
+  value: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  footer: {
+    marginTop: 32,
+    marginBottom: 24,
+    alignItems: 'center',
+  },
+  copyright: {
     fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 4,
   },
 });
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Animated, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -12,12 +12,13 @@ import { RootStackParamList } from './src/types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { UserProvider } from './src/context/UserContext';
+import { colors } from './src/theme/colors';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 const NotesStack = () => {
-  const { theme, colors } = useTheme();
+  const { theme } = useTheme();
   const themeColors = colors[theme];
 
   return (
@@ -38,24 +39,12 @@ const NotesStack = () => {
           headerTintColor: themeColors.text,
         }}
       />
-      <Stack.Screen 
-        name="Settings" 
-        component={SettingsScreen}
-        options={{
-          headerShown: true,
-          headerStyle: {
-            backgroundColor: themeColors.background,
-          },
-          headerTintColor: themeColors.text,
-          title: 'Settings',
-        }}
-      />
     </Stack.Navigator>
   );
 };
 
 const AppContent = () => {
-  const { theme, colors } = useTheme();
+  const { theme } = useTheme();
   const themeColors = colors[theme];
 
   return (
@@ -129,7 +118,7 @@ const AppContent = () => {
       />
       <Tab.Screen
         name="Add"
-        component={EditNoteScreen}
+        component={NotesStack}
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.addButtonWrapper}>
@@ -150,8 +139,8 @@ const AppContent = () => {
         })}
       />
       <Tab.Screen
-        name="Search"
-        component={HomeScreen}
+        name="Profile"
+        component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused, color }) => (
             <View style={styles.tabIconContainer}>
@@ -164,7 +153,7 @@ const AppContent = () => {
                 }
               ]} />
               <Icon
-                name="search"
+                name="person"
                 size={22}
                 color={focused ? themeColors.accent : themeColors.textTertiary}
                 style={styles.tabIcon}

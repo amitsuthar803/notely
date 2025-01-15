@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   TextInput,
   StyleSheet,
   TouchableOpacity,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   Modal,
   Text,
@@ -14,10 +12,10 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useTheme } from '../context/ThemeContext';
-import { colors } from '../theme/colors';
+import {useTheme} from '../context/ThemeContext';
+import {colors} from '../theme/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 interface Note {
   id: string;
@@ -27,40 +25,22 @@ interface Note {
   color?: string;
 }
 
-const EditNoteScreen = ({ route, navigation }: any) => {
-  const note = route.params?.note;
+const EditNoteScreen = ({route, navigation}: any) => {
+  const note = route?.params?.note;
   const [title, setTitle] = useState(note?.title || '');
   const [content, setContent] = useState(note?.content || '');
-  const [selectedColor, setSelectedColor] = useState(note?.color || colors.light.noteColors[0]);
+  const [selectedColor, setSelectedColor] = useState(note?.color || '#FFD700');
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const { theme } = useTheme();
+  const {theme} = useTheme();
   const themeColors = colors[theme];
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <View style={styles.headerRight}>
-          <TouchableOpacity
-            style={[styles.colorDot, { backgroundColor: selectedColor }]}
-            onPress={() => setShowColorPicker(true)}
-          >
-            <Icon name="palette" size={20} color={isLightColor(selectedColor) ? '#000' : '#fff'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-            <Icon name="check" size={24} color={themeColors.accent} />
-          </TouchableOpacity>
-        </View>
-      ),
-    });
-  }, [title, content, selectedColor, navigation, themeColors.accent]);
-
   const handleSave = async () => {
-    if (!title.trim() && !content.trim()) {
-      Alert.alert('Error', 'Note cannot be empty');
-      return;
-    }
-
     try {
+      if (!title.trim() && !content.trim()) {
+        Alert.alert('Error', 'Note cannot be empty');
+        return;
+      }
+
       const newNote = {
         id: note?.id || Date.now().toString(),
         title: title.trim(),
@@ -70,19 +50,10 @@ const EditNoteScreen = ({ route, navigation }: any) => {
       };
 
       const savedNotes = await AsyncStorage.getItem('notes');
-      let notes: Note[] = [];
-      
-      if (savedNotes) {
-        try {
-          notes = JSON.parse(savedNotes);
-        } catch (e) {
-          console.error('Error parsing saved notes:', e);
-          notes = [];
-        }
-      }
+      let notes = savedNotes ? JSON.parse(savedNotes) : [];
 
-      if (note) {
-        const index = notes.findIndex(n => n.id === note.id);
+      if (note?.id) {
+        const index = notes.findIndex((n: Note) => n.id === note.id);
         if (index !== -1) {
           notes[index] = newNote;
         } else {
@@ -96,7 +67,7 @@ const EditNoteScreen = ({ route, navigation }: any) => {
       navigation.goBack();
     } catch (error) {
       console.error('Error saving note:', error);
-      Alert.alert('Error', 'Failed to save note. Please try again.');
+      Alert.alert('Error', 'Failed to save note');
     }
   };
 
@@ -105,81 +76,112 @@ const EditNoteScreen = ({ route, navigation }: any) => {
     const r = parseInt(hex.substr(0, 2), 16);
     const g = parseInt(hex.substr(2, 2), 16);
     const b = parseInt(hex.substr(4, 2), 16);
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    return brightness > 128;
+    return (r * 299 + g * 587 + b * 114) / 1000 > 128;
   };
 
-  const ColorPickerModal = () => (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={showColorPicker}
-      onRequestClose={() => setShowColorPicker(false)}
-    >
-      <TouchableOpacity
-        style={styles.modalOverlay}
-        activeOpacity={1}
-        onPress={() => setShowColorPicker(false)}
-      >
-        <View style={[styles.colorPickerModal, { backgroundColor: themeColors.surface }]}>
-          <Text style={[styles.colorPickerTitle, { color: themeColors.text }]}>Note Color</Text>
-          <View style={styles.colorGrid}>
-            {colors[theme].noteColors.map((color, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.colorOption,
-                  { backgroundColor: color },
-                  selectedColor === color && styles.selectedColor,
-                ]}
-                onPress={() => {
-                  setSelectedColor(color);
-                  setShowColorPicker(false);
-                }}
-              >
-                {selectedColor === color && (
-                  <Icon name="check" size={20} color={isLightColor(color) ? '#000' : '#fff'} />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </TouchableOpacity>
-    </Modal>
-  );
+  const noteColors = [
+    '#FFD700', // Gold
+    '#FF6B6B', // Coral
+    '#4ECDC4', // Turquoise
+    '#96CEB4', // Sage
+    '#FFEEAD', // Cream
+    '#D4A5A5', // Mauve
+    '#9370DB', // Medium Purple
+    '#20B2AA', // Light Sea Green
+  ];
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: selectedColor }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView style={styles.scrollView}>
+    <View style={[styles.container, {backgroundColor: selectedColor}]}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={[styles.colorButton, {backgroundColor: selectedColor}]}
+          onPress={() => setShowColorPicker(true)}>
+          <Icon
+            name="palette"
+            size={24}
+            color={isLightColor(selectedColor) ? '#000' : '#fff'}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <Icon name="check" size={24} color="#000" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}>
         <TextInput
           style={[
             styles.titleInput,
-            { color: isLightColor(selectedColor) ? '#000' : '#fff' }
+            {color: isLightColor(selectedColor) ? '#000' : '#fff'},
           ]}
           placeholder="Title"
-          placeholderTextColor={isLightColor(selectedColor) ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)'}
+          placeholderTextColor={
+            isLightColor(selectedColor)
+              ? 'rgba(0,0,0,0.5)'
+              : 'rgba(255,255,255,0.5)'
+          }
           value={title}
           onChangeText={setTitle}
-          maxLength={100}
         />
         <TextInput
           style={[
             styles.contentInput,
-            { color: isLightColor(selectedColor) ? '#000' : '#fff' }
+            {color: isLightColor(selectedColor) ? '#000' : '#fff'},
           ]}
           placeholder="Start typing..."
-          placeholderTextColor={isLightColor(selectedColor) ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)'}
+          placeholderTextColor={
+            isLightColor(selectedColor)
+              ? 'rgba(0,0,0,0.5)'
+              : 'rgba(255,255,255,0.5)'
+          }
           value={content}
           onChangeText={setContent}
           multiline
           textAlignVertical="top"
         />
       </ScrollView>
-      <ColorPickerModal />
-    </KeyboardAvoidingView>
+
+      <Text style={styles.copyright}>
+        Designed & Developed by Amit Suthar {new Date().getFullYear()}
+      </Text>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showColorPicker}
+        onRequestClose={() => setShowColorPicker(false)}>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowColorPicker(false)}>
+          <View
+            style={[
+              styles.colorPickerContainer,
+              {backgroundColor: themeColors.surface},
+            ]}>
+            <Text style={[styles.colorPickerTitle, {color: themeColors.text}]}>
+              Choose Note Color
+            </Text>
+            <View style={styles.colorGrid}>
+              {noteColors.map((color, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.colorOption, {backgroundColor: color}]}
+                  onPress={() => {
+                    setSelectedColor(color);
+                    setShowColorPicker(false);
+                  }}>
+                  {selectedColor === color && (
+                    <Icon name="check" size={20} color="#000" />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
   );
 };
 
@@ -187,44 +189,51 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 16,
+  },
+  colorButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  saveButton: {
+    padding: 8,
+  },
+  content: {
     flex: 1,
-    padding: 20,
+  },
+  contentContainer: {
+    padding: 16,
   },
   titleInput: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
+    padding: 0,
   },
   contentInput: {
     fontSize: 16,
     lineHeight: 24,
-    flex: 1,
-    minHeight: 200,
+    padding: 0,
+    textAlignVertical: 'top',
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 8,
-  },
-  saveButton: {
-    padding: 8,
-  },
-  colorDot: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+  copyright: {
+    textAlign: 'center',
+    padding: 16,
+    color: '#666',
+    fontSize: 12,
   },
   modalOverlay: {
     flex: 1,
@@ -232,17 +241,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  colorPickerModal: {
-    width: SCREEN_WIDTH - 80,
+  colorPickerContainer: {
+    width: SCREEN_WIDTH * 0.8,
     padding: 20,
     borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
     elevation: 5,
   },
   colorPickerTitle: {
@@ -255,27 +257,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 12,
+    alignItems: 'center',
   },
   colorOption: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    margin: 5,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    margin: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
     elevation: 2,
-  },
-  selectedColor: {
-    borderWidth: 2,
-    borderColor: '#000',
   },
 });
 

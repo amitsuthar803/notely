@@ -18,7 +18,7 @@ const TabIcon = ({ name, size, color, focused, theme }) => {
     if (focused) {
       Animated.parallel([
         Animated.spring(scaleValue, {
-          toValue: 1.2,
+          toValue: 1.2, 
           tension: 100,
           friction: 10,
           useNativeDriver: true,
