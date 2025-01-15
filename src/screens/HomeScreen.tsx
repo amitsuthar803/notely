@@ -219,12 +219,6 @@ const HomeScreen = ({navigation}) => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={EmptyListMessage}
       />
-      <TouchableOpacity 
-        style={[styles.fab, {backgroundColor: themeColors.accent}]}
-        onPress={() => setShowColorPicker(true)}
-      >
-        <Icon name="add" size={24} color="#FFFFFF" />
-      </TouchableOpacity>
       <ColorPickerModal />
     </View>
   );
@@ -323,24 +317,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     paddingHorizontal: 32,
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
   },
   modalOverlay: {
     flex: 1,

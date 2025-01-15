@@ -8,5 +8,8 @@ export interface Note {
 
 export type RootStackParamList = {
   Home: undefined;
-  EditNote: { note?: Note };
+  EditNote: { note?: any } | undefined;
+  Settings: undefined;
+  Todo: undefined;
+  Profile: undefined;
 };

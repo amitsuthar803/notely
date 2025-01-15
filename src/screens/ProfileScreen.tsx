@@ -50,89 +50,87 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView 
+    <ScrollView
       style={[styles.container, { backgroundColor: themeColors.background }]}
       contentContainerStyle={styles.contentContainer}
     >
       <View style={styles.header}>
+        <Text style={[styles.title, { color: themeColors.text }]}>Profile</Text>
+      </View>
+
+      <View style={styles.profileSection}>
         <View style={styles.avatarContainer}>
           <Image
-            source={{ uri: userData?.avatar }}
+            source={{ uri: userData?.avatar || 'https://randomuser.me/api/portraits/men/32.jpg' }}
             style={styles.avatar}
           />
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.editAvatarButton, { backgroundColor: themeColors.accent }]}
-            onPress={() => Alert.alert('Coming Soon', 'Avatar upload will be available soon!')}
           >
             <Icon name="camera-alt" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
-      </View>
 
-      <View style={styles.form}>
-        <View style={styles.formGroup}>
-          <Text style={[styles.label, { color: themeColors.textSecondary }]}>Name</Text>
+        <View style={styles.infoContainer}>
           {isEditing ? (
-            <TextInput
-              style={[
-                styles.input,
-                { 
-                  color: themeColors.text,
+            <>
+              <TextInput
+                style={[styles.input, { 
                   backgroundColor: themeColors.searchBackground,
-                }
-              ]}
-              value={editedName}
-              onChangeText={setEditedName}
-              placeholder="Enter your name"
-              placeholderTextColor={themeColors.textTertiary}
-            />
+                  color: themeColors.text,
+                }]}
+                value={editedName}
+                onChangeText={setEditedName}
+                placeholder="Your name"
+                placeholderTextColor={themeColors.textTertiary}
+              />
+              <TextInput
+                style={[styles.input, { 
+                  backgroundColor: themeColors.searchBackground,
+                  color: themeColors.text,
+                }]}
+                value={editedEmail}
+                onChangeText={setEditedEmail}
+                placeholder="Your email"
+                placeholderTextColor={themeColors.textTertiary}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: themeColors.accent }]}
+                  onPress={handleSave}
+                >
+                  <Text style={styles.buttonText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: themeColors.textTertiary }]}
+                  onPress={() => setIsEditing(false)}
+                >
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </>
           ) : (
-            <Text style={[styles.value, { color: themeColors.text }]}>{userData?.name}</Text>
+            <>
+              <View style={styles.infoRow}>
+                <Text style={[styles.label, { color: themeColors.textSecondary }]}>Name</Text>
+                <Text style={[styles.value, { color: themeColors.text }]}>{userData?.name}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={[styles.label, { color: themeColors.textSecondary }]}>Email</Text>
+                <Text style={[styles.value, { color: themeColors.text }]}>{userData?.email}</Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.editButton, { backgroundColor: themeColors.accent }]}
+                onPress={() => setIsEditing(true)}
+              >
+                <Icon name="edit" size={20} color="#FFFFFF" />
+                <Text style={styles.editButtonText}>Edit Profile</Text>
+              </TouchableOpacity>
+            </>
           )}
         </View>
-
-        <View style={styles.formGroup}>
-          <Text style={[styles.label, { color: themeColors.textSecondary }]}>Email</Text>
-          {isEditing ? (
-            <TextInput
-              style={[
-                styles.input,
-                { 
-                  color: themeColors.text,
-                  backgroundColor: themeColors.searchBackground,
-                }
-              ]}
-              value={editedEmail}
-              onChangeText={setEditedEmail}
-              placeholder="Enter your email"
-              placeholderTextColor={themeColors.textTertiary}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          ) : (
-            <Text style={[styles.value, { color: themeColors.text }]}>{userData?.email}</Text>
-          )}
-        </View>
-
-        <TouchableOpacity
-          style={[
-            styles.button,
-            { backgroundColor: themeColors.accent }
-          ]}
-          onPress={() => {
-            if (isEditing) {
-              handleSave();
-            } else {
-              setEditedName(userData?.name || '');
-              setEditedEmail(userData?.email || '');
-              setIsEditing(true);
-            }
-          }}
-        >
-          <Text style={styles.buttonText}>
-            {isEditing ? 'Save Changes' : 'Edit Profile'}
-          </Text>
-        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -142,20 +140,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
+  contentContainer: {
+    padding: 20,
+    paddingTop: 60,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  settingsButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  contentContainer: {
-    paddingBottom: 40,
-  },
-  header: {
+  profileSection: {
     alignItems: 'center',
-    paddingVertical: 32,
   },
   avatarContainer: {
     position: 'relative',
+    marginBottom: 20,
   },
   avatar: {
     width: 120,
@@ -172,46 +183,65 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF6B6B',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
-  form: {
-    paddingHorizontal: 24,
-  },
-  formGroup: {
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  value: {
-    fontSize: 16,
-    fontWeight: '500',
+  infoContainer: {
+    width: '100%',
   },
   input: {
+    width: '100%',
+    height: 50,
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    marginBottom: 15,
     fontSize: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
   },
   button: {
-    height: 48,
-    borderRadius: 24,
+    flex: 1,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    marginHorizontal: 5,
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  infoRow: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  value: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  editButton: {
+    flexDirection: 'row',
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  editButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
