@@ -12,12 +12,14 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useTheme} from '../context/ThemeContext';
+import {useUser} from '../context/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {colors} from '../theme/colors';
 
 const HomeScreen = ({navigation}) => {
   const {theme} = useTheme();
   const themeColors = colors[theme];
+  const {userData} = useUser();
   const [showColorPicker, setShowColorPicker] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -165,11 +167,11 @@ const HomeScreen = ({navigation}) => {
         <View style={styles.headerTop}>
           <View>
             <Text style={[styles.welcomeText, {color: themeColors.textSecondary}]}>Welcome back</Text>
-            <Text style={[styles.title, {color: themeColors.text}]}>My Notes</Text>
+            <Text style={[styles.title, {color: themeColors.text}]}>{userData?.name || 'My'}'s Notes</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
             <Image 
-              source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }}
+              source={{ uri: userData?.avatar || 'https://randomuser.me/api/portraits/men/32.jpg' }}
               style={styles.profilePic}
             />
           </TouchableOpacity>

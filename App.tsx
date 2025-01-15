@@ -6,9 +6,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from './src/screens/HomeScreen';
 import EditNoteScreen from './src/screens/EditNoteScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 import { RootStackParamList } from './src/types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ThemeProvider, useTheme, colors } from './src/context/ThemeContext';
+import { UserProvider } from './src/context/UserContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -162,6 +164,10 @@ const AppContent = () => {
           name="Settings" 
           component={SettingsScreen}
         />
+        <Tab.Screen 
+          name="Profile" 
+          component={ProfileScreen}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );
@@ -170,7 +176,9 @@ const AppContent = () => {
 const App = () => {
   return (
     <ThemeProvider>
-      <AppContent />
+      <UserProvider>
+        <AppContent />
+      </UserProvider>
     </ThemeProvider>
   );
 };
